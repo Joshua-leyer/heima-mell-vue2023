@@ -1,11 +1,15 @@
 import axios from 'axios';
+import { Toast } from 'vant';
 
 // 发起一个post请求
 const instance = axios.create({
   baseURL: 'http://smart-shop.itheima.net/index.php?s=/api',
-  timeout: 5000
+  timeout: 5000,
+  headers: {
+    platform: 'H5'
+  }
 });
-
+// Q: 不添加headers 会导致问题 | A: https://blog.csdn.net/qq_63041328/article/details/140390468
 
 // 添加请求拦截器
 instance.interceptors.request.use(function (config) {
@@ -20,6 +24,12 @@ instance.interceptors.request.use(function (config) {
 instance.interceptors.response.use(function (response) {
   // 2xx 范围内的状态码都会触发该函数。
   // 对响应数据做点什么 (axios默认会给返回的数据包一层data，导致数据层级太深了)
+  const res = response.data;
+  if (res.status !== 200) {
+    Toast(res.message)
+    // 抛出一个错误的 Promise对象
+    return Promise.reject(res.message)
+  }
   return response.data;
 }, function (error) {
   // 超出 2xx 范围的状态码都会触发该函数。
