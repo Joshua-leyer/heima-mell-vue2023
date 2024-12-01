@@ -16,19 +16,19 @@
           <img v-if="picUrl" :src="picUrl" @click="getPicCode" alt="">
         </div>
         <div class="form-item">
-          <input class="inp" placeholder="请输入短信验证码" type="text">
+          <input v-model="messageCode" class="inp" placeholder="请输入短信验证码" type="text">
           <button @click="getCode">{{ codeSecond <= 0 ? '获取验证码' : codeSecond + '秒后重新发送'}}</button>
         </div>
       </div>
 
-      <div class="login-btn">登录</div>
+      <div @click="loginFn" class="login-btn">登录</div>
     </div>
   </div>
 </template>
 
 <script>
 import request from '@/utils/request.js';
-import {getPicCodeApi, getMessageCodeApi} from '@/api/login.js';
+import {getPicCodeApi, getMessageCodeApi, LoginApi} from '@/api/login.js';
 import { Toast } from 'vant';
 
 export default {
@@ -40,7 +40,8 @@ export default {
       picKey: '',  // 和验证码图形一对一绑定的唯一标识，和后面后端发送过来的验证码也是唯一绑定关系.
       picUrl: '',
       codeSecond: 0,
-      CodeTimer: null
+      CodeTimer: null,
+      messageCode: '246810',
     }
   },
   async created() {
@@ -82,13 +83,27 @@ export default {
         this.$toast(`发送成功.注意查收验证码.`)
         this.CodeTimer = setInterval(() => {
         this.codeSecond --;
-        console.log(`codeTimer is run...`)
+        // console.log(`codeTimer is run...`)
         if (this.codeSecond <= 0) {
           clearInterval(this.CodeTimer)
           this.CodeTimer = null;
         }
       }, 1000)
       }
+    },
+
+    async loginFn() {
+      if(!this.vaildFn()) {
+        return
+      }
+      if (!/^\d{6}$/.test(this.messageCode)) {
+        this.$toast(`请输入正确手机验证码`)
+        return
+      }
+      let res = await LoginApi(this.mobile, this.messageCode)
+      console.log(`loginApi data:`, res)
+      this.$toast(`login sucess!`)
+      this.$router.push('/')
     }
   }
 }

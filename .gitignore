@@ -2,6 +2,8 @@
 node_modules
 /dist
 
+* text=auto
+
 
 # local env files
 .env.local
