@@ -101,7 +101,8 @@ export default {
         return
       }
       let res = await LoginApi(this.mobile, this.messageCode)
-      console.log(`loginApi data:`, res)
+      // console.log(`loginApi data:`, res)
+      this.$store.commit('user/setUserInfo', res.data)
       this.$toast(`login sucess!`)
       this.$router.push('/')
     }

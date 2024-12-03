@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <van-button type="primary">主要按钮</van-button>
+    <div>{{ count }}</div>
     <!-- <div class="box"></div> -->
     <router-view/>
   </div>
@@ -11,6 +12,11 @@ export default {
   data() {
     return {
 
+    }
+  },
+  computed: {
+    count() {
+      return this.$store.state.count;
     }
   }
 }
