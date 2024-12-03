@@ -35,8 +35,8 @@ export default {
   name: 'LoginPage',
   data() {
     return {
-      mobile: '',
-      picCode: '', // 验证码图形内部的字母
+      mobile: '18835376621',
+      picCode: 'aaaa', // 验证码图形内部的字母
       picKey: '',  // 和验证码图形一对一绑定的唯一标识，和后面后端发送过来的验证码也是唯一绑定关系.
       picUrl: '',
       codeSecond: 0,

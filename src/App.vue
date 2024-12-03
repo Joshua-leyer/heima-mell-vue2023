@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <van-button type="primary">主要按钮</van-button>
+    <van-button type="primary" @click="HandleGotoLogin">
+      主要按钮
+    </van-button>
     <div>{{ count }}</div>
     <!-- <div class="box"></div> -->
     <router-view/>
@@ -17,6 +19,11 @@ export default {
   computed: {
     count() {
       return this.$store.state.count;
+    }
+  },
+  methods: {
+    HandleGotoLogin() {
+      this.$router.push('/login')
     }
   }
 }

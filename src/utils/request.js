@@ -14,11 +14,23 @@ const instance = axios.create({
 // 添加请求拦截器
 instance.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
+
+  // 开启loding显示, 禁止背景点击(节流处理，)
+  Toast.loading({
+    message: '加载中...',
+    forbidClick: true,
+    duration: 0 // 不会自动消失, 看Vant官网
+  });
   return config;
 }, function (error) {
   // 对请求错误做些什么
   return Promise.reject(error);
 });
+
+
+
+
+
 
 // 添加响应拦截器
 instance.interceptors.response.use(function (response) {
@@ -26,9 +38,12 @@ instance.interceptors.response.use(function (response) {
   // 对响应数据做点什么 (axios默认会给返回的数据包一层data，导致数据层级太深了)
   const res = response.data;
   if (res.status !== 200) {
+    // toast是单例模式，后面的新的会覆盖前面的效果。
     Toast(res.message)
     // 抛出一个错误的 Promise对象
     return Promise.reject(res.message)
+  } else {
+    Toast.clear();
   }
   return response.data;
 }, function (error) {
