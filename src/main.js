@@ -5,6 +5,7 @@ import Vant from 'vant'
 import 'vant/lib/index.css'
 import '@/style/common.less'
 import store from './store'; // 引入 Vuex Store
+import '@/utils/tools.js';
 
 Vue.use(Vant)
 Vue.config.productionTip = false

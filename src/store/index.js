@@ -25,6 +25,11 @@ export default new Vuex.Store({
   actions: {
     // 你的异步操作
   },
+  getters: {
+    token(state) {
+      return state.user.userInfo.token
+    }
+  },
   modules: {
     // 你的模块
     user
