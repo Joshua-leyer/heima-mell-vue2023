@@ -44,7 +44,7 @@ const authUrl = [
 
 // 所有路由在真正被访问到之前，都会经过全局前置守卫函数；只有守卫函数放行了，才会到达对应的页面。
 router.beforeEach((to, from ,next) => {
-  log(`beforeEach log...`,to)
+  // log(`beforeEach log...`,to)
   if (!authUrl.includes(to.path)) {
     // 非权限页面，直接放行
     next()
@@ -52,12 +52,12 @@ router.beforeEach((to, from ,next) => {
   }
   //权限页面，需要验证
   const token = store.state.user.userInfo.token
-  log(`获取到的 token 是`, token)
+  // log(`获取到的 token 是`, token)
   if(token) {
-    log(`有 token 放行`)
+    // log(`有 token 放行`)
     next()
   } else {
-    log(`没有 token , 返回/login页面`)
+    // log(`没有 token , 返回/login页面`)
     next('/login')
   }
   

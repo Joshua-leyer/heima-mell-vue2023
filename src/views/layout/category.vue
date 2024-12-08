@@ -48,6 +48,7 @@ export default {
     async getCategoryList () {
       const { data: { list } } = await getCategoryData()
       this.list = list
+      log(`categoryData res is `, this.list)
     }
   },
   // async created () {
