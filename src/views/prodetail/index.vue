@@ -104,7 +104,7 @@
 
           <!-- if -->
           <div class="showbtn" v-if="detail.stock_total > 0">
-            <div class="btn" v-if="sheetModel === 'cartModel'">加入购物车</div>
+            <div class="btn" v-if="sheetModel === 'cartModel'" @click="addCart">加入购物车</div>
             <div class="btn now" v-else>立刻购买</div>
           </div>
           <!-- else -->
@@ -121,6 +121,8 @@
 import { getProDetail, getProComment } from '@/api/product';
 import defaultAvaImg from '@/assets/default-avatar.png';
 import CountBox from '@/components/CountBox.vue';
+// import { Dialog } from 'vant';
+
 export default {
   name: 'ProDetailPage',
   components: {
@@ -171,6 +173,37 @@ export default {
     buyCartHandle() {
       this.showPannel = true;
       this.sheetModel = 'buyModel';
+    },
+    addCart() {
+      // 判断 token 是否存在
+      log(`addCart function click`)
+      if(this.$store.getters.token) {
+        log(`没有 token `)
+        return
+      }
+      // Dialog.confirm({});  方式一， 上面要引用 Dialog 
+      // 方式二
+      this.$dialog.confirm({
+          title: '提示',
+          message: '请先登录',
+          confirmButtonText: '去登陆',
+          cancelButtonText: '在逛逛'
+        })
+        .then(() => {
+          // on confirm
+          // 跳转到登录页面，如果想要跳转回来，需要携带信息过去,这里使用 query，路径值来做标识
+          this.$router.replace({
+            path: '/login',
+            query: {
+              backUrl: this.$route.fullPath
+            }
+          })
+        })
+        .catch(() => {
+          // on cancel
+
+        });
+      return 
     }
   }
 }

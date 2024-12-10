@@ -104,7 +104,17 @@ export default {
       // console.log(`loginApi data:`, res)
       this.$store.commit('user/setUserInfo', res.data)
       this.$toast(`login sucess!`)
-      this.$router.push('/')
+      // 判断地址栏是否有回调地址,也就是 query参数有没有 backUrl 变量
+      // 写法1
+      // const backUrl = this.$route.query.backUrl;
+      // if (backUrl) {
+      //   this.$router.push(backUrl)
+      // } else {
+      //   this.$router.push('/')
+      // }
+      // 写法2
+      const url = this.$route.query.backUrl || '/';
+      this.$router.replace(url)
     }
   }
 }
