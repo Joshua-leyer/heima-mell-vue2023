@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Toast } from 'vant';
+import store from '@/store'
 
 // 发起一个post请求
 const instance = axios.create({
@@ -21,6 +22,15 @@ instance.interceptors.request.use(function (config) {
     forbidClick: true,
     duration: 0 // 不会自动消失, 看Vant官网
   });
+
+  // 在 添加购物车，购买，支付相关的请求的时候需要携带token ,以确认用户
+  // 只要有 token ,在请求前需要
+  const token = store.getters.token
+  if (token) {
+    config.headers['Access-Token'] = token
+    config.headers.platform = 'H5'
+  }
+
   return config;
 }, function (error) {
   // 对请求错误做些什么

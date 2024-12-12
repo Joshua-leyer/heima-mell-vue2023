@@ -70,7 +70,8 @@
         <van-icon name="wap-home-o" />
         <span>首页</span>
       </div>
-      <div class="icon-cart">
+      <div @click="$router.push('/cart')" class="icon-cart">
+        <span v-if="cartTotal > 0" class="num">{{ cartTotal }}</span>
         <van-icon name="shopping-cart-o" />
         <span>购物车</span>
       </div>
@@ -123,6 +124,9 @@ import defaultAvaImg from '@/assets/default-avatar.png';
 import CountBox from '@/components/CountBox.vue';
 // import { Dialog } from 'vant';
 
+import {addCart} from '@/api/cart.js';
+
+
 export default {
   name: 'ProDetailPage',
   components: {
@@ -138,7 +142,8 @@ export default {
       defaultAvaImg,
       showPannel: false,
       sheetModel: 'cartModel',
-      proCounts: 1  // 购物车商品数量
+      proCounts: 1,  // 购物车商品数量,
+      cartTotal: 0 // 购物车角标
     }
   },
   computed:  {
@@ -174,37 +179,43 @@ export default {
       this.showPannel = true;
       this.sheetModel = 'buyModel';
     },
-    addCart() {
+    async addCart() {
       // 判断 token 是否存在
-      log(`addCart function click`)
-      if(this.$store.getters.token) {
-        log(`没有 token `)
+      log(`addCart function click`, this.$store.getters.token)
+      if(!this.$store.getters.token) {
+        // Dialog.confirm({});  方式一， 上面要引用 Dialog 
+        // 方式二
+        this.$dialog.confirm({
+            title: '提示',
+            message: '请先登录',
+            confirmButtonText: '去登陆',
+            cancelButtonText: '在逛逛'
+          })
+          .then(() => {
+            // on confirm
+            // 跳转到登录页面，如果想要跳转回来，需要携带信息过去,这里使用 query，路径值来做标识
+            this.$router.replace({
+              path: '/login',
+              query: {
+                backUrl: this.$route.fullPath
+              }
+            })
+          })
+          .catch(() => {
+            // on cancel
+
+          }); 
+
         return
       }
-      // Dialog.confirm({});  方式一， 上面要引用 Dialog 
-      // 方式二
-      this.$dialog.confirm({
-          title: '提示',
-          message: '请先登录',
-          confirmButtonText: '去登陆',
-          cancelButtonText: '在逛逛'
-        })
-        .then(() => {
-          // on confirm
-          // 跳转到登录页面，如果想要跳转回来，需要携带信息过去,这里使用 query，路径值来做标识
-          this.$router.replace({
-            path: '/login',
-            query: {
-              backUrl: this.$route.fullPath
-            }
-          })
-        })
-        .catch(() => {
-          // on cancel
-
-        });
-      return 
+      let {data} = await addCart(this.goodsId, this.proCounts, this.detail.skuList[0].goods_sku_id)
+      this.cartTotal = data.cartTotal
+      this.$toast('加入购物车成功')
+      this.showPannel = false
+      // log(`购物车角标数量`, this.cartTotal)
     }
+
+
   }
 }
 </script>
@@ -405,7 +416,22 @@ export default {
   }
 }
 
-
+.footer .icon-cart {
+  position: relative;
+  padding: 0 6px;
+  .num {
+    z-index: 999;
+    position: absolute;
+    top: -2px;
+    right: 0;
+    min-width: 16px;
+    padding: 0 4px;
+    color: #fff;
+    text-align: center;
+    background-color: #ee0a24;
+    border-radius: 50%;
+  }
+}
 
 
 
