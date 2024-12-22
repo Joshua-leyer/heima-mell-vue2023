@@ -1,5 +1,6 @@
-import { changeCount, getCartList } from '@/api/cart';
+import { changeCount, getCartList, deleteGoods } from '@/api/cart';
 import { getInfo, setInfo } from '@/utils/storage.js';
+import { Toast } from 'vant';
 
 
 export default {
@@ -45,6 +46,15 @@ export default {
       //  后台同步数据
       let res = await changeCount(goodsId, goodsNum, goodsSkuId)
       log(`goods Count update : `, res)
+    },
+    // 删除购物车数据
+    async delSelAction(context) {
+      const selCartList = context.getters.selCartList;
+      const cartIds = selCartList.map(item => item.id)
+      await deleteGoods(cartIds)
+      Toast('删除成功')
+      // 重新拉去最新购物车数据
+      context.dispatch('getCartAction')
     }
   },
   getters: {

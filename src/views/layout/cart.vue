@@ -1,48 +1,61 @@
 <template>
   <div class="cart">
     <van-nav-bar title="购物车" fixed />
-    <!-- 购物车开头 -->
-    <div class="cart-title">
-      <span class="all">共<i>{{ cartTotal }}</i>件商品</span>
-      <span class="edit">
-        <van-icon name="edit" />
-        编辑
-      </span>
-    </div>
+    
+    <div v-if="isLogin && cartList.length > 0">
+      <!-- 购物车开头 -->
+      <div class="cart-title">
+        <span class="all">共<i>{{ cartTotal }}</i>件商品</span>
+        <span class="edit" @click="isEdit = !isEdit">
+          <van-icon name="edit" />
+          编辑
+        </span>
+      </div>
 
-    <!-- 购物车列表 -->
-    <div class="cart-list">
-      <div class="cart-item" v-for="item in cartList" :key="item.goods_id">
-        <van-checkbox @click="toggleCheck(item.goods_id)" :value="item.isChecked"></van-checkbox>
-        <div class="show">
-          <img :src="item.goods.goods_image" alt="">
+      <!-- 购物车列表 -->
+      <div class="cart-list">
+        <div class="cart-item" v-for="item in cartList" :key="item.goods_id">
+          <van-checkbox @click="toggleCheck(item.goods_id)" :value="item.isChecked"></van-checkbox>
+          <div class="show">
+            <img :src="item.goods.goods_image" alt="">
+          </div>
+          <div class="info">
+            <span class="tit text-ellipsis-2">{{ item.goods.goods_name }}</span>
+            <span class="bottom">
+              <div class="price">¥ <span>{{ item.goods.goods_price_min }}</span></div>
+              <!-- 既拿到形参又拿到函数调用的方法， 不太懂这里 -->
+              <CountBox @input="(value) => changeCount(value, item.goods_id, item.goods_sku_id)" :value="item.goods_num"></CountBox>
+            </span>
+          </div>
         </div>
-        <div class="info">
-          <span class="tit text-ellipsis-2">{{ item.goods.goods_name }}</span>
-          <span class="bottom">
-            <div class="price">¥ <span>{{ item.goods.goods_price_min }}</span></div>
-            <!-- 既拿到形参又拿到函数调用的方法， 不太懂这里 -->
-            <CountBox @input="(value) => changeCount(value, item.goods_id, item.goods_sku_id)" :value="item.goods_num"></CountBox>
-          </span>
+      </div>
+
+      <!-- 购物车底部 -->
+      <div class="footer-fixed">
+        <div @click="toggleAllChek" class="all-check">
+          <van-checkbox :value="isAllchecked"  icon-size="18"></van-checkbox>
+          全选
+        </div>
+
+        <div class="all-total">
+          <div class="price">
+            <span>合计：</span>
+            <span>¥ <i class="totalPrice">{{ selPrice }}</i></span>
+          </div>
+          <div v-if="!isEdit" class="goPay" :class="{ disabled: selCount === 0}">结算({{ selCount }})</div>
+          <div v-else @click="handleDel" class="delete" :class="{ disabled: selCount === 0}">删除</div>
         </div>
       </div>
     </div>
 
-    <div class="footer-fixed">
-      <div @click="toggleAllChek" class="all-check">
-        <van-checkbox :value="isAllchecked"  icon-size="18"></van-checkbox>
-        全选
+    <div class="empty-cart" v-else>
+      <img src="@/assets/empty.png" alt="">
+      <div class="tips">
+        您的购物车是空的, 快去逛逛吧
       </div>
-
-      <div class="all-total">
-        <div class="price">
-          <span>合计：</span>
-          <span>¥ <i class="totalPrice">{{ selPrice }}</i></span>
-        </div>
-        <div v-if="true" class="goPay" :class="{ disabled: selCount === 0}">结算({{ selCount }})</div>
-        <div v-else class="delete" :class="{ disabled: selCount === 0}">删除</div>
-      </div>
+      <div class="btn" @click="$router.push('/')">去逛逛</div>
     </div>
+
   </div>
 </template>
 
@@ -62,21 +75,38 @@ import CountBox from '@/components/CountBox.vue';
 import { mapGetters, mapState } from 'vuex';
 export default {
   name: 'CartPage',
+  data(){
+    return {
+      isEdit: false
+    }
+  },
   components: {
     CountBox
   },
   computed: {
     ...mapState('cart', ['cartList']), // vuex 获取数据的一种方式   
-    ...mapGetters('cart', ['cartTotal', 'selCartList', 'selCount', 'selPrice', 'isAllchecked'])
+    ...mapGetters('cart', ['cartTotal', 'selCartList', 'selCount', 'selPrice', 'isAllchecked']),
+    isLogin() {
+      return this.$store.getters.token
+    }
+  },
+  watch: {
+    isEdit(value) {
+      if (value) {
+        // 当切换为编辑功能的时候, 默认所有商品是没有被选中状态
+        this.$store.commit('cart/toggleAllCheck', false)
+      } else {
+        this.$store.commit('cart/toggleAllCheck', true)
+      }
+    }
   },
   created() {
-    if (this.$store.getters.token) {
+    if (this.isLogin) {
       this.$store.dispatch('cart/getCartAction')
     }
   },
   methods: {
     toggleCheck(goodId) {
-      log(`toggleCheck click`)
       this.$store.commit('cart/toggleCheck', goodId)
     },
     toggleAllChek() {
@@ -84,10 +114,20 @@ export default {
       this.$store.commit('cart/toggleAllCheck', !this.isAllchecked)
     },
     changeCount(goodsNum, goodsId, goodsSkuId) {
-      log(goodsNum, goodsId, goodsSkuId)
       this.$store.dispatch('cart/changeCountAction', {
         goodsNum, goodsId, goodsSkuId
       })
+    },
+    /**
+     * 这里学的时候脑子里就会默认的以为，是点击哪个就要把对应商品的数据传递给vuex，
+     * 这是错误的思维方式， 显然 vuex 就是数据状态管理工具 ， 
+     * 当我们 选择复选框等操作的时候， vuex 管理的数据已经发生变化,
+     * 删除动作就不需要传入额外的数据了
+     */
+    handleDel() {
+      if(this.selCount === 0) { return }
+      this.$store.dispatch('cart/delSelAction')
+      this.isEdit = false
     }
   }
 }
@@ -227,5 +267,31 @@ export default {
     }
   }
 
+}
+
+.empty-cart {
+  padding: 80px 30px;
+  img {
+    width: 140px;
+    height: 92px;
+    display: block;
+    margin: 0 auto;
+  }
+  .tips {
+    text-align: center;
+    color: #666;
+    margin: 30px;
+  }
+  .btn {
+    width: 110px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    background-color: #fa2c20;
+    border-radius: 16px;
+    color: #fff;
+    display: block;
+    margin: 0 auto;
+  }
 }
 </style>
