@@ -13,7 +13,7 @@
     <!-- 购物车列表 -->
     <div class="cart-list">
       <div class="cart-item" v-for="item in cartList" :key="item.goods_id">
-        <van-checkbox :value="item.isChecked"></van-checkbox>
+        <van-checkbox @click="toggleCheck(item.goods_id)" :value="item.isChecked"></van-checkbox>
         <div class="show">
           <img :src="item.goods.goods_image" alt="">
         </div>
@@ -21,15 +21,16 @@
           <span class="tit text-ellipsis-2">{{ item.goods.goods_name }}</span>
           <span class="bottom">
             <div class="price">¥ <span>{{ item.goods.goods_price_min }}</span></div>
-            <CountBox :value="item.goods_num"></CountBox>
+            <!-- 既拿到形参又拿到函数调用的方法， 不太懂这里 -->
+            <CountBox @input="(value) => changeCount(value, item.goods_id, item.goods_sku_id)" :value="item.goods_num"></CountBox>
           </span>
         </div>
       </div>
     </div>
 
     <div class="footer-fixed">
-      <div  class="all-check">
-        <van-checkbox  icon-size="18"></van-checkbox>
+      <div @click="toggleAllChek" class="all-check">
+        <van-checkbox :value="isAllchecked"  icon-size="18"></van-checkbox>
         全选
       </div>
 
@@ -66,11 +67,27 @@ export default {
   },
   computed: {
     ...mapState('cart', ['cartList']), // vuex 获取数据的一种方式   
-    ...mapGetters('cart', ['cartTotal', 'selCartList', 'selCount', 'selPrice'])
+    ...mapGetters('cart', ['cartTotal', 'selCartList', 'selCount', 'selPrice', 'isAllchecked'])
   },
   created() {
     if (this.$store.getters.token) {
       this.$store.dispatch('cart/getCartAction')
+    }
+  },
+  methods: {
+    toggleCheck(goodId) {
+      log(`toggleCheck click`)
+      this.$store.commit('cart/toggleCheck', goodId)
+    },
+    toggleAllChek() {
+      // 传递过去的时候，在这里把数据反转 !
+      this.$store.commit('cart/toggleAllCheck', !this.isAllchecked)
+    },
+    changeCount(goodsNum, goodsId, goodsSkuId) {
+      log(goodsNum, goodsId, goodsSkuId)
+      this.$store.dispatch('cart/changeCountAction', {
+        goodsNum, goodsId, goodsSkuId
+      })
     }
   }
 }

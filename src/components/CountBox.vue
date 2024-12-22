@@ -34,7 +34,6 @@ export default {
     },
     handleAdd() {
       this.$emit('input', this.value +1)
-
     },
     handleChange(e) {
       let num = +e.target.value; // 转数字处理
