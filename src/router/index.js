@@ -30,7 +30,8 @@ const routes = [
   {path: '/search', component: Search},
   {path: '/searchlist', component: SearchList},
   {path: '/prodetail/:id', component: ProDetail},
-  {path: '/pay', component: Pay}
+  {path: '/pay', component: Pay},
+  {path: '/myorder', component: MyOrder}
 ]
 
 const router = new VueRouter({

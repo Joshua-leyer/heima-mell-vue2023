@@ -89,7 +89,7 @@
     <!-- 底部提交 -->
     <div class="footer-fixed">
       <div class="left">实付款：<span>￥{{ order.orderTotalPrice }}</span></div>
-      <div class="tipsbtn" >提交订单</div>
+      <div class="tipsbtn" @click="submitOrder">提交订单</div>
     </div>
 
   </div>
@@ -97,7 +97,7 @@
 
 <script>
 import { getAddress } from '@/api/address.js';
-import { checkOrder } from '@/api/order.js';
+import { checkOrder, submitOrder } from '@/api/order.js';
 import loginConfirm from '@/mixins/loginConfirm.js';
 
 export default {
@@ -107,7 +107,8 @@ export default {
     return {
       addressList: [],
       personal: {},
-      order: {}
+      order: {},
+      remark: '' // 备注留言
     }
   },
   computed: {
@@ -164,8 +165,25 @@ export default {
         this.order = order;
         this.personal = personal;
       }
-
-
+    },
+    async submitOrder() {
+      log(`this mode`, this.mode)
+      if(this.mode === 'cart') {
+        await submitOrder(this.mode, {
+          cartIds: this.cartIds,
+          remark: this.remark
+        })
+      } 
+      if(this.mode === 'buyNow') {
+        await submitOrder(this.mode, {
+          goodsId: this.goodsId,
+          goodsSkuId : this.goodsSkuId,
+          goodsNum: this.goodsNum,
+          remark: this.remark
+        })
+      }
+      this.$toast('支付ok~!');
+      this.$router.replace('/myorder')
     }
   }
 }
