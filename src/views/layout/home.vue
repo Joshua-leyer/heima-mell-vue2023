@@ -64,7 +64,7 @@ export default {
   async created() {
     // const { data: { pageData }} = await getHomeData();
     const { data : { pageData } } = await getHomeData();
-    log(``, pageData);
+    // log(``, pageData);
     this.bannerList = pageData.items[1].data;
     this.navList = pageData.items[3].data;
     this.proList = pageData.items[6].data;
