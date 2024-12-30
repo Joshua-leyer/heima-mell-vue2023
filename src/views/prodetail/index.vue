@@ -79,7 +79,7 @@
       <div class="btn-buy" @click="buyCartHandle">立刻购买</div>
     </div>
     
-    <!-- 加入购物车弹层 -->
+    <!-- 加入购物车弹层  / 立即购买弹层   -->
     <van-action-sheet v-model="showPannel" :title="sheetModel === 'cartModel' ? '购物车' : '购买' ">
       <div class="content">
         <div class="product">
@@ -106,7 +106,7 @@
           <!-- if -->
           <div class="showbtn" v-if="detail.stock_total > 0">
             <div class="btn" v-if="sheetModel === 'cartModel'" @click="addCart">加入购物车</div>
-            <div class="btn now" v-else>立刻购买</div>
+            <div class="btn now" @click="goBuyNow" v-else>立刻购买</div>
           </div>
           <!-- else -->
           <div class="btn-none" v-else>该商品已抢完</div>
@@ -123,12 +123,14 @@ import { getProDetail, getProComment } from '@/api/product';
 import defaultAvaImg from '@/assets/default-avatar.png';
 import CountBox from '@/components/CountBox.vue';
 // import { Dialog } from 'vant';
+import loginConfirm from '@/mixins/loginConfirm.js';
 
 import {addCart} from '@/api/cart.js';
 
 
 export default {
   name: 'ProDetailPage',
+  mixins: [loginConfirm ],
   components: {
     CountBox
   },
@@ -180,39 +182,29 @@ export default {
       this.sheetModel = 'buyModel';
     },
     async addCart() {
-      // 判断 token 是否存在
-      log(`addCart function click`, this.$store.getters.token)
-      if(!this.$store.getters.token) {
-        // Dialog.confirm({});  方式一， 上面要引用 Dialog 
-        // 方式二
-        this.$dialog.confirm({
-            title: '提示',
-            message: '请先登录',
-            confirmButtonText: '去登陆',
-            cancelButtonText: '在逛逛'
-          })
-          .then(() => {
-            // on confirm
-            // 跳转到登录页面，如果想要跳转回来，需要携带信息过去,这里使用 query，路径值来做标识
-            this.$router.replace({
-              path: '/login',
-              query: {
-                backUrl: this.$route.fullPath
-              }
-            })
-          })
-          .catch(() => {
-            // on cancel
-
-          }); 
-
-        return
+      // 判读那是否弹出确认框，弹出就说明没有登录
+      if (this.loginConfirm()) {
+        return 
       }
       let {data} = await addCart(this.goodsId, this.proCounts, this.detail.skuList[0].goods_sku_id)
       this.cartTotal = data.cartTotal
       this.$toast('加入购物车成功')
       this.showPannel = false
       // log(`购物车角标数量`, this.cartTotal)
+    },
+    goBuyNow() {
+      if (this.loginConfirm()) {
+        return 
+      }
+      this.$router.push({
+        path: '/pay',
+        query: {
+          mode: 'buyNow',
+          goodsId: this.goodsId,
+          goodsSkuId: this.detail.skuList[0].goods_sku_id,
+          goodsNum: this.proCounts
+        }
+      })
     }
 
 

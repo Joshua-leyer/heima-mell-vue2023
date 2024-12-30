@@ -98,9 +98,11 @@
 <script>
 import { getAddress } from '@/api/address.js';
 import { checkOrder } from '@/api/order.js';
+import loginConfirm from '@/mixins/loginConfirm.js';
 
 export default {
   name: 'PayIndex',
+  mixins: [loginConfirm ],
   data () {
     return {
       addressList: [],
@@ -121,9 +123,17 @@ export default {
       return this.$route.query.mode
     },
     cartIds() {
-    
       return this.$route.query.cartIds
-    }
+    },
+    goodsId() {
+      return this.$route.query.goodsId
+    },
+    goodsSkuId() {
+      return this.$route.query.goodsSkuId
+    },
+    goodsNum() {
+      return this.$route.query.goodsNum
+    },
   },
   created() {
     log(this.$route.query)
@@ -137,12 +147,24 @@ export default {
       // log(`get address data`, data)
     },
     async getCheckOrderList() {
-      const {data: { order, personal }} = await checkOrder(this.mode, {
-        cartIds: this.cartIds
-      })
-      this.order = order;
-      this.personal = personal;
-      // log(`getCheckOrderlist data `, res)
+      if (this.mode === 'cart') {
+        const {data: { order, personal }} = await checkOrder(this.mode, {
+          cartIds: this.cartIds
+        })
+        this.order = order;
+        this.personal = personal;
+        // log(`getCheckOrderlist data `, res)
+      }
+      if(this.mode === 'buyNow') {
+        const {data: { order, personal }} = await checkOrder(this.mode, {
+          goodsId: this.goodsId,
+          goodsSkuId: this.goodsSkuId,
+          goodsNum: this.goodsNum
+        })
+        this.order = order;
+        this.personal = personal;
+      }
+
 
     }
   }
