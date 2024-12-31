@@ -1,19 +1,21 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Layout from '@/views/layout'
-import Search from '@/views/search'
-import SearchList from '@/views/searchlist'
-import ProDetail from '@/views/prodetail'
-import Pay from '@/views/pay'
-import Login from '@/views/login'
-import MyOrder from '@/views/myorder'
 
+import Layout from '@/views/layout'
 import Home from '@/views/layout/home'
 import Category from '@/views/layout/category'
 import Cart from '@/views/layout/cart'
 import User from '@/views/layout/user'
+
+
 import store from '@/store'
 
+const  Search = ()=> import( '@/views/search');
+const  SearchList = ()=> import( '@/views/searchlist');
+const  ProDetail = ()=> import( '@/views/prodetail');
+const  Pay = ()=> import( '@/views/pay');
+const  Login = ()=> import( '@/views/login');
+const  MyOrder = ()=> import( '@/views/myorder');
 
 Vue.use(VueRouter)
 
