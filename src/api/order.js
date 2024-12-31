@@ -20,10 +20,23 @@ export const checkOrder = (mode, obj) => {
 export const submitOrder = (mode, obj) => {
   return request.post('/checkout/submit', {
     mode,
-    delivery: 10,
+    delivery: 20,   // 20：自提
     couponId: 0,
     isUsePoints: 0,
     payType: 10,  // 余额支付
     ...obj
+  })
+}
+
+
+
+// 订单类型，all-全部，payment-待支付，delivery-待发货，received-待收货，comment-待评价
+
+export const getMyOrderList = (dataType, page) => {
+  return request.get('/order/list', {
+    params: {
+      dataType,
+      page
+    }
   })
 }
